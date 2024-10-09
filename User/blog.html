@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Gallery</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <style>
+        #blogGallery {
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .blog-post {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            width: 50%;
+        }
+        img, video {
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Blog Gallery</h2>
+
+    <!-- Blog Gallery Section -->
+    <div id="blogGallery"></div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        // Firebase config and initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyCe9mKD6-clP_Sfip4zSyN1SKUn8G5cays",
+            authDomain: "analogy-64fa2.firebaseapp.com",
+            projectId: "analogy-64fa2",
+            storageBucket: "analogy-64fa2.appspot.com",
+            messagingSenderId: "771776371665",
+            appId: "1:771776371665:web:77c5ce8c1e7017b977def0",
+            measurementId: "G-33XWDFQY89"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Display blog posts
+        async function displayBlogs() {
+            try {
+                const blogGallery = document.getElementById('blogGallery');
+                blogGallery.innerHTML = ''; // Clear gallery before populating
+
+                const blogsQuery = query(collection(db, 'BlogsCollection'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(blogsQuery);
+
+                querySnapshot.forEach((doc) => {
+                    const blogData = doc.data();
+
+                    // Create blog post container
+                    const blogPost = document.createElement('div');
+                    blogPost.classList.add('blog-post');
+
+                    // Create title and theory elements
+                    const title = document.createElement('h3');
+                    title.textContent = blogData.title;
+
+                    const theory = document.createElement('p');
+                    theory.textContent = blogData.theory;
+
+                    // Create media element (image or video)
+                    let mediaElement;
+                    if (blogData.mediaUrl) {
+                        if (blogData.mediaType === 'image') {
+                            mediaElement = document.createElement('img');
+                            mediaElement.src = blogData.mediaUrl;
+                        } else if (blogData.mediaType === 'video') {
+                            mediaElement = document.createElement('video');
+                            mediaElement.src = blogData.mediaUrl;
+                            mediaElement.controls = true; // Add controls for video
+                        }
+                    }
+
+                    // Append elements to the blog gallery
+                    blogPost.appendChild(title);
+                    blogPost.appendChild(theory);
+                    if (mediaElement) blogPost.appendChild(mediaElement);
+                    blogGallery.appendChild(blogPost);
+                });
+
+            } catch (error) {
+                console.error('Error fetching blogs:', error);
+            }
+        }
+
+        // Call displayBlogs function when the page loads
+        displayBlogs();
+    </script>
+</body>
+</html>

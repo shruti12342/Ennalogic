@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body>
+    <h1>Welcome User</h1>
+    <div class="nav">
+        <ul>
+            <li><a href="." target="content-frame">Home</a></li>
+            <li><a href="gallery.html" target="content-frame">Gallery</a></li>
+            <li><a href="video.html" target="content-frame">Videos</a></li>
+            <li><a href="blog.html" target="content-frame">Blog</a></li>
+        </ul>
+    </div>
+
+    <h2>Image Gallery</h2>
+    <div class="gallery-container">
+        <div id="imageGallery"></div>
+        <a href="gallery.html" class="more-button">More Images</a>
+    </div>
+
+    <h2>Video Gallery</h2>
+    <div class="gallery-container">
+        <div id="videoGallery"></div>
+        <a href="video.html" class="more-button">More Videos</a>
+    </div>
+
+    <h2>Blog Gallery</h2>
+    <div class="gallery-container">
+        <div id="blogGallery"></a></div>
+        <a href="blog.html" class="more-button">More Blogs</a>
+    </div>
+
+    <div>
+        <script type="module">
+            // Firebase imports
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+            import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+            // Firebase config and initialization
+            const firebaseConfig = {
+                apiKey: "AIzaSyCe9mKD6-clP_Sfip4zSyN1SKUn8G5cays",
+                authDomain: "analogy-64fa2.firebaseapp.com",
+                projectId: "analogy-64fa2",
+                storageBucket: "analogy-64fa2.appspot.com",
+                messagingSenderId: "771776371665",
+                appId: "1:771776371665:web:77c5ce8c1e7017b977def0",
+                measurementId: "G-33XWDFQY89"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            // Display images from Firestore
+            async function displayImages() {
+                try {
+                    const imageGallery = document.getElementById('imageGallery');
+                    imageGallery.innerHTML = ''; // Clear gallery before populating
+
+                    const imagesQuery = query(collection(db, 'imagesGallery'), orderBy('createdAt', 'desc'));
+                    const querySnapshot = await getDocs(imagesQuery);
+
+                    let imageCount = 0; // Initialize a counter for images displayed
+
+                    querySnapshot.forEach((doc) => {
+                        if (imageCount < 3) { // Check if we have displayed less than 3 images
+                            const imageData = doc.data();
+
+                            // Create image card container
+                            const imageCard = document.createElement('div');
+                            imageCard.classList.add('image-card');
+
+                            // Create image and caption elements
+                            const image = document.createElement('img');
+                            image.src = imageData.imageUrl;
+                            image.alt = imageData.caption;
+
+                            const caption = document.createElement('p');
+                            caption.textContent = imageData.caption;
+
+                            // Append elements to the image gallery
+                            imageCard.appendChild(image);
+                            imageCard.appendChild(caption);
+                            imageGallery.appendChild(imageCard);
+
+                            imageCount++; // Increment the counter
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error fetching images:', error);
+                }
+            }
+
+            // Display videos from Firestore
+            async function displayVideos() {
+                try {
+                    const videoGallery = document.getElementById('videoGallery');
+                    videoGallery.innerHTML = ''; // Clear gallery before populating
+
+                    const videosQuery = query(collection(db, 'videoGalleryyy'), orderBy('createdAt', 'desc'));
+                    const querySnapshot = await getDocs(videosQuery);
+
+                    let videoCount = 0; // Initialize a counter for videos displayed
+
+                    querySnapshot.forEach((doc) => {
+                        if (videoCount < 3) { // Check if we have displayed less than 3 videos
+                            const videoData = doc.data();
+
+                            // Create video card container
+                            const videoCard = document.createElement('div');
+                            videoCard.classList.add('video-card');
+
+                            // Create video element
+                            const video = document.createElement('video');
+                            video.controls = true;
+                            video.src = videoData.videoUrl;
+
+                            const title = document.createElement('h3');
+                            title.textContent = videoData.title;
+
+                            const description = document.createElement('p');
+                            description.textContent = videoData.description;
+
+                            // Append elements to the video gallery
+                            videoCard.appendChild(video);
+                            videoCard.appendChild(title);
+                            videoCard.appendChild(description);
+                            videoGallery.appendChild(videoCard);
+
+                            videoCount++; // Increment the counter
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error fetching videos:', error);
+                }
+            }
+
+            // Display blogs from Firestore
+            async function displayBlogs() {
+                try {
+                    const blogGallery = document.getElementById('blogGallery');
+                    blogGallery.innerHTML = ''; // Clear gallery before populating
+
+                    const blogsQuery = query(collection(db, 'BlogsFolderrr'), orderBy('createdAt', 'desc'));
+                    const querySnapshot = await getDocs(blogsQuery);
+
+                    querySnapshot.forEach((doc) => {
+                        const blogData = doc.data();
+                        const blogId = doc.id;
+
+                        const blogLink = document.createElement('a');
+                        blogLink.href = `blogDetails.html?id=${blogId}`;
+                        blogLink.target = '_blank';
+
+                        // Create blog card container
+                        const blogPost = document.createElement('div');
+                        blogPost.classList.add('blog-post');
+
+                        // Create media element (image or video)
+                        let mediaElement;
+                        if (blogData.mediaUrl) {
+                            if (blogData.mediaType === 'image') {
+                                mediaElement = document.createElement('img');
+                                mediaElement.src = blogData.mediaUrl;
+                            } else if (blogData.mediaType === 'video') {
+                                mediaElement = document.createElement('video');
+                                mediaElement.src = blogData.mediaUrl;
+                                mediaElement.controls = true; // Add controls for video
+                            }
+                        }
+
+                        // Create title and theory elements
+                        const title = document.createElement('h3');
+                        title.textContent = blogData.title;
+
+                        const theory = document.createElement('p');
+                        theory.textContent = blogData.theory;
+
+                        // Append elements to the blog gallery
+                        blogPost.appendChild(mediaElement);
+                        blogPost.appendChild(title);
+                        blogPost.appendChild(theory);
+                        blogLink.appendChild(blogPost);
+                        blogGallery.appendChild(blogLink);
+                    });
+
+                } catch (error) {
+                    console.error('Error fetching blogs:', error);
+                }
+            }
+
+            // Call display function when the page loads
+            window.onload = () => {
+                displayImages();
+                displayVideos();
+                displayBlogs(); // Call the new function to display blogs
+            };
+        </script>
+    </div>
+
+</body>
+
+</html>
