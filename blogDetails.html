@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Details</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+    <h1>Blog Details</h1>
+    <div id="blogDetails"></div>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCe9mKD6-clP_Sfip4zSyN1SKUn8G5cays",
+            authDomain: "analogy-64fa2.firebaseapp.com",
+            projectId: "analogy-64fa2",
+            storageBucket: "analogy-64fa2.appspot.com",
+            messagingSenderId: "771776371665",
+            appId: "1:771776371665:web:77c5ce8c1e7017b977def0",
+            measurementId: "G-33XWDFQY89"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to fetch blog details using the blog ID from the URL
+        async function displayBlogDetails() {
+            const params = new URLSearchParams(window.location.search);
+            const blogId = params.get('id'); // Get blog ID from the URL
+
+            if (blogId) {
+                const blogDoc = doc(db, 'BlogsFolderrr', blogId);
+                const blogSnapshot = await getDoc(blogDoc);
+
+                if (blogSnapshot.exists()) {
+                    const blogData = blogSnapshot.data();
+                    const blogDetailsDiv = document.getElementById('blogDetails');
+
+                    // Create blog title, theory, and media (image/video)
+                    const title = document.createElement('h2');
+                    title.textContent = blogData.title;
+
+                    const theory = document.createElement('p');
+                    theory.textContent = blogData.theory;
+
+                    let mediaElement;
+                    if (blogData.mediaUrl) {
+                        if (blogData.mediaType === 'image') {
+                            mediaElement = document.createElement('img');
+                            mediaElement.src = blogData.mediaUrl;
+                        } else if (blogData.mediaType === 'video') {
+                            mediaElement = document.createElement('video');
+                            mediaElement.src = blogData.mediaUrl;
+                            mediaElement.controls = true; // Add controls for video
+                        }
+                    }
+
+                    // Append elements to the blog details section
+                    blogDetailsDiv.appendChild(title);
+                    blogDetailsDiv.appendChild(theory);
+                    if (mediaElement) {
+                        blogDetailsDiv.appendChild(mediaElement);
+                    }
+                } else {
+                    console.log("No such blog!");
+                }
+            } else {
+                console.log("No blog ID found in URL.");
+            }
+        }
+
+        // Call the function when the page loads
+        window.onload = displayBlogDetails;
+    </script>
+</body>
+</html>

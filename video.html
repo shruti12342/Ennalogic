@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Gallery</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <style>
+        .content {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        #videoGallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .video-card {
+            margin: 10px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            text-align: center;
+            overflow: hidden; /* Prevent overflow */
+            width: 300px; /* Fixed width to match the video */
+        }
+        video {
+            width: 100%; /* Set width to fill card */
+            height: auto; /* Maintain aspect ratio */
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Gallery</h1>
+    
+    <!-- Video Gallery Section -->
+    <div class="content">
+        <div id="videoGallery"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        // Firebase config and initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyCe9mKD6-clP_Sfip4zSyN1SKUn8G5cays",
+            authDomain: "analogy-64fa2.firebaseapp.com",
+            projectId: "analogy-64fa2",
+            storageBucket: "analogy-64fa2.appspot.com",
+            messagingSenderId: "771776371665",
+            appId: "1:771776371665:web:77c5ce8c1e7017b977def0",
+            measurementId: "G-33XWDFQY89"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Display videos in the gallery
+        async function displayVideos() {
+            try {
+                const videoGallery = document.getElementById('videoGallery');
+                videoGallery.innerHTML = ''; // Clear gallery before populating
+
+                const videosQuery = query(collection(db, 'videoss'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(videosQuery);
+
+                querySnapshot.forEach((doc) => {
+                    const videoData = doc.data();
+
+                    // Create video card container
+                    const videoCard = document.createElement('div');
+                    videoCard.classList.add('video-card');
+
+                    // Create video element
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.src = videoData.videoUrl;
+
+                    // Create title and description elements
+                    const title = document.createElement('h3');
+                    title.textContent = videoData.title;
+
+                    const description = document.createElement('p');
+                    description.textContent = videoData.description;
+
+                    // Append elements to the video gallery
+                    videoCard.appendChild(video);
+                    videoCard.appendChild(title);
+                    videoCard.appendChild(description);
+                    videoGallery.appendChild(videoCard);
+                });
+
+            } catch (error) {
+                console.error('Error fetching videos:', error);
+            }
+        }
+
+        // Call displayVideos function when the page loads
+        displayVideos();
+    </script>
+</body>
+</html>
